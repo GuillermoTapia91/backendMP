@@ -56,4 +56,54 @@ class EstablecimientosUsuariosController(Resource):
           'content': establecimientos
        }
 
+class EstablecimientoUsuariosController(Resource):
+    @jwt_required()
+    # /establecimiento-miInformacion/<int:id>
+    def put(self, id):
 
+      try: 
+        usuarioId = get_jwt_identity()
+        data = request.json
+        establecimiento = conexion.session.query(EstablecimientoModel).filter_by(id=id,usuarioId=usuarioId).first()
+        
+        if not establecimiento:
+           raise Exception('Establecimiento no existe')
+        
+        dto = EstablecimientoRequestDto()
+        dataValidada = dto.load(data)
+
+        conexion.session.query(EstablecimientoModel).filter_by(id=id,usuarioId=usuarioId).update(dataValidada)  
+
+        conexion.session.commit()
+        resultado = EstablecimientoResponseDto().dump(establecimiento)
+        
+        return {
+            'message': 'Establecimiento actualizado exitosamente',
+            'content': resultado
+        },201
+      except Exception as e:
+         return {
+            'message': 'Error al actualizar el establecimiento',
+            'content': e.args
+         }, 400  
+
+    @jwt_required()
+    def delete(self,id):
+       try:
+          usuarioId= get_jwt_identity()
+          establecimientoEliminado = conexion.session.query(EstablecimientoModel).filter_by(id=id,usuarioId=usuarioId).delete()
+
+          if establecimientoEliminado == 0:
+             raise Exception('Este establecimiento no existe')
+          
+          conexion.session.commit()
+
+          return {
+             'message':'El establecimiento se eliminó existosamente'
+          }
+       
+       except Exception as e:
+          return {
+             'message':'Error al eliminar el establecimiento',
+             'content':e.args
+          },400
