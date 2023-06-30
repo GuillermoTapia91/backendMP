@@ -8,7 +8,7 @@ from models.evento_model import EventoModel
 from flask_jwt_extended import JWTManager
 from controllers.usuario_controller import RegistroController,LoginController,PerfilController
 from controllers.establecimiento_controller import EstablecimientosController
-from controllers.establecimientosUsuarios_controller import EstablecimientosUsuariosController
+from controllers.establecimientosUsuarios_controller import EstablecimientosUsuariosController,EstablecimientoUsuariosController
 from controllers.evento_controller import EventosController
 from controllers.eventosUsuarios_controller import EventosUsuariosController
 from datetime import timedelta
@@ -24,7 +24,31 @@ api = Api(app)
 app.config['JWT_SECRET_KEY']=environ.get('SECRET_KEY')
 app.config['JWT_ACCESS_TOKEN_EXPIRES']= timedelta(weeks=20)
 
-JWTManager(app)
+jwt=JWTManager(app)
+
+@jwt.unauthorized_loader
+def tokenRequerida(razon):
+    return {
+        'message':"Se necesita una token para realizar esta acción"
+    },401
+
+@jwt.invalid_token_loader
+def tokenInvalida(razon):
+   
+    print(razon)
+    message = ''
+    if razon == 'Not enough segments':
+        message = 'La token tiene que tener 3 segmentos, el header, payload y signature'
+
+    elif razon == "Invalid header string: 'utf-8' codec can't decode byte 0xc7 in position 0: invalid continuation byte":
+        message = 'Token invalida'
+
+    elif razon == 'Signature verification failed':
+        message = 'Esta token no pertenece a esta API'
+
+    return {
+        'message': message
+    }, 401
 
 app.config['SQLALCHEMY_DATABASE_URI']=environ.get('DATABASE_URL')
 
@@ -43,9 +67,11 @@ api.add_resource(PerfilController,'/perfil')
   #Establecimientos Vista Principal(usuario registrado) 
 api.add_resource(EstablecimientosController,'/establecimientos')
   #Establecimientos Vista Mi información(empresario)
-  
-  # Eventos 
 api.add_resource(EstablecimientosUsuariosController,'/establecimientos-miInformacion')
+  #Establecimiento Vista mi Información(empresario)
+api.add_resource(EstablecimientoUsuariosController,'/establecimiento-miInformacion/<int:id>') 
+    
+  # Eventos 
   #Eventos Vista Principal(empresario)
 api.add_resource(EventosController,'/eventos')
   #Eventos Vista Mi información(empresario)
