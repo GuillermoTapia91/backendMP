@@ -38,9 +38,13 @@ api.add_resource(RegistroController,'/registro-usuario')
 api.add_resource(LoginController,'/iniciar-sesion')
 api.add_resource(PerfilController,'/perfil')
 
+
+  #Establecimientos
   #Establecimientos Vista Principal(usuario registrado) 
 api.add_resource(EstablecimientosController,'/establecimientos')
   #Establecimientos Vista Mi información(empresario)
+  
+  # Eventos 
 api.add_resource(EstablecimientosUsuariosController,'/establecimientos-miInformacion')
   #Eventos Vista Principal(empresario)
 api.add_resource(EventosController,'/eventos')
