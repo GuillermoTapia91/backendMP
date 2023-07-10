@@ -10,7 +10,7 @@ from controllers.usuario_controller import RegistroController,LoginController,Pe
 from controllers.establecimiento_controller import EstablecimientosController
 from controllers.establecimientosUsuarios_controller import EstablecimientosUsuariosController,EstablecimientoUsuariosController
 from controllers.evento_controller import EventosController
-from controllers.eventosUsuarios_controller import EventosUsuariosController
+from controllers.eventosUsuarios_controller import EventosUsuariosController,EventoUsuariosController
 from datetime import timedelta
 
 from os import environ
@@ -76,6 +76,8 @@ api.add_resource(EstablecimientoUsuariosController,'/establecimiento-miInformaci
 api.add_resource(EventosController,'/eventos')
   #Eventos Vista Mi información(empresario)
 api.add_resource(EventosUsuariosController,'/eventos-miInformacion')
+  #Eventos Vista Mi información(empresario)
+api.add_resource(EventoUsuariosController,'/evento-miInformacion/<int:id>')
 
 
 if __name__ == ('__main__'):

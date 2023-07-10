@@ -1,3 +1,6 @@
 entorno-virtual
 .env
 *.pyc
+
+imagenes
+
