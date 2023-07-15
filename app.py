@@ -9,10 +9,11 @@ from flask_jwt_extended import JWTManager
 from controllers.usuario_controller import RegistroController,LoginController,PerfilController
 from controllers.establecimiento_controller import EstablecimientosController
 from controllers.establecimientosUsuarios_controller import EstablecimientosUsuariosController,EstablecimientoUsuariosController
+from controllers.establecimientosGenerales_controller import EstablecimientosGeneralesController
 from controllers.evento_controller import EventosController
 from controllers.eventosUsuarios_controller import EventosUsuariosController,EventoUsuariosController
 from datetime import timedelta
-
+from flask_cors import CORS
 from os import environ
 from dotenv import load_dotenv
 from flask_cors import CORS
@@ -20,6 +21,7 @@ from flask_cors import CORS
 load_dotenv()
 
 app= Flask(__name__)
+CORS(app)
 api = Api(app)
 app.config['JWT_SECRET_KEY']=environ.get('SECRET_KEY')
 app.config['JWT_ACCESS_TOKEN_EXPIRES']= timedelta(weeks=20)
@@ -70,7 +72,8 @@ api.add_resource(EstablecimientosController,'/establecimientos')
 api.add_resource(EstablecimientosUsuariosController,'/establecimientos-miInformacion')
   #Establecimiento Vista mi Información(empresario)
 api.add_resource(EstablecimientoUsuariosController,'/establecimiento-miInformacion/<int:id>') 
-    
+   #Establecimientos Vista Principal(usuario no registrado)  
+api.add_resource(EstablecimientosGeneralesController,'/establecimientos-generales')
   # Eventos 
   #Eventos Vista Principal(empresario)
 api.add_resource(EventosController,'/eventos')

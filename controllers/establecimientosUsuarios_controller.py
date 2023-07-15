@@ -3,7 +3,7 @@ from config import conexion
 from models.establecimiento_model import EstablecimientoModel
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from dtos.establecimiento_dto import EstablecimientoRequestDto,EstablecimientoResponseDto
-from os import path, getcwd,environ
+from os import path, getcwd,environ, remove
 from werkzeug.utils import secure_filename
 from uuid import uuid4
 from boto3 import Session
@@ -136,11 +136,12 @@ class EstablecimientoUsuariosController(Resource):
     @jwt_required()
     # /establecimiento-miInformacion/<int:id>
     def put(self, id):
-      usuarioId = get_jwt_identity()
       data = request.form #request.json
-      
+      fotoLogo = request.files.get('fotoLogo')
+      usuarioId = get_jwt_identity()
       dto = EstablecimientoRequestDto()
-      
+      dataValidada = dto.load(data)
+      directorioActual = getcwd()
       try: 
         
         establecimientoEncontrado = conexion.session.query(EstablecimientoModel).filter_by(id=id,usuarioId=usuarioId).first()
@@ -151,12 +152,10 @@ class EstablecimientoUsuariosController(Resource):
         S3 = AWSSession.client('s3')
         if establecimientoEncontrado.fotoLogo:
           S3.delete_object(Bucket=environ.get('AWS_BUCKET_NAME'), Key= establecimientoEncontrado.fotoLogo)
+        print('foto eliminada')
         
-        dto = EstablecimientoRequestDto()
-        dataValidada = dto.load(data)
-        fotoLogo = request.files.get('fotoLogo')
-        directorioActual = getcwd()
-        S3 = AWSSession.client('s3')
+        print(dataValidada)
+        
         nombreFotoLogo = None
         if fotoLogo:
             filename =secure_filename(fotoLogo.filename)
@@ -164,13 +163,12 @@ class EstablecimientoUsuariosController(Resource):
             ruta=path.join(directorioActual,'imagenes',nombreFotoLogo)
             fotoLogo.save(ruta)
             S3.upload_file(ruta,environ.get('AWS_BUCKET_NAME'), nombreFotoLogo)
-              
-
-        conexion.session.query(EstablecimientoModel).filter_by(id=id,usuarioId=usuarioId).update(dataValidada,fotoLogo=nombreFotoLogo)  
-
-
+            remove(ruta)
+        dataValidada['fotoLogo']= nombreFotoLogo
+        conexion.session.query(EstablecimientoModel).filter_by(id=id,usuarioId=usuarioId).update(dataValidada)      
+        
         conexion.session.commit()
-        #resultado = EstablecimientoResponseDto().dump(establecimientoEditado)
+        # #resultado = EstablecimientoResponseDto().dump(establecimientoEditado)
         
         return {
             'message': 'Establecimiento actualizado exitosamente',
