@@ -3,17 +3,13 @@ from models.establecimiento_model import EstablecimientoModel, TipoEstablecimien
 from marshmallow import Schema, fields
 from marshmallow_enum import EnumField
 
-#para Crear establecimiento(post)
-# class EstablecimientoRequestDto(SQLAlchemyAutoSchema):
-#     class Meta:
-#         model = EstablecimientoModel
-
 #Para listar establecimientos(get)
 class EstablecimientoResponseDto(SQLAlchemyAutoSchema):
     tipoEstablecimiento = EnumField(enum=TipoEstablecimiento,by_value=True)
     class Meta:
         model = EstablecimientoModel
 
+#para Crear establecimiento(post)
 class EstablecimientoRequestDto(Schema):
     tipoEstablecimiento = EnumField(enum=TipoEstablecimiento,by_value=True)
     nombre = fields.Str(required=True)
