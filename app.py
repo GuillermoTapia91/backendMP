@@ -12,6 +12,7 @@ from controllers.establecimientosUsuarios_controller import EstablecimientosUsua
 from controllers.establecimientosGenerales_controller import EstablecimientosGeneralesController
 from controllers.evento_controller import EventosController
 from controllers.eventosUsuarios_controller import EventosUsuariosController,EventoUsuariosController
+from controllers.eventosGenerales_controller import EventosGeneralesController
 from datetime import timedelta
 from flask_cors import CORS
 from os import environ
@@ -64,7 +65,6 @@ api.add_resource(RegistroController,'/registro-usuario')
 api.add_resource(LoginController,'/iniciar-sesion')
 api.add_resource(PerfilController,'/perfil')
 
-
   #Establecimientos
   #Establecimientos Vista Principal(usuario registrado) 
 api.add_resource(EstablecimientosController,'/establecimientos')
@@ -74,6 +74,7 @@ api.add_resource(EstablecimientosUsuariosController,'/establecimientos-miInforma
 api.add_resource(EstablecimientoUsuariosController,'/establecimiento-miInformacion/<int:id>') 
    #Establecimientos Vista Principal(usuario no registrado)  
 api.add_resource(EstablecimientosGeneralesController,'/establecimientos-generales')
+  
   # Eventos 
   #Eventos Vista Principal(empresario)
 api.add_resource(EventosController,'/eventos')
@@ -81,7 +82,8 @@ api.add_resource(EventosController,'/eventos')
 api.add_resource(EventosUsuariosController,'/eventos-miInformacion')
   #Eventos Vista Mi información(empresario)
 api.add_resource(EventoUsuariosController,'/evento-miInformacion/<int:id>')
-
+   #Eventos Vista Principal(usuario no registrado)  
+api.add_resource(EventosGeneralesController,'/eventos-generales')
 
 if __name__ == ('__main__'):
     app.run(debug=True)

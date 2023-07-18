@@ -14,38 +14,39 @@ class EstablecimientosController(Resource):
   #para listar los establecimentos en la pagina principal, luego de iniciar sesion
     @jwt_required()
     def get(self):
+       try: 
+        resultado = conexion.session.query(EstablecimientoModel).all()
+        S3= AWSSession.client('s3') 
+        dto = EstablecimientoResponseDto(many=True)
+        establecimientos = dto.dump(resultado)
 
-       resultado = conexion.session.query(EstablecimientoModel).all()
-       S3= AWSSession.client('s3') 
-       dto = EstablecimientoResponseDto(many=True)
-       establecimientos = dto.dump(resultado)
+        for establecimiento in establecimientos:
+          if establecimiento.get('fotoLogo'):  
+            establecimiento['fotoLogo']=S3.generate_presigned_url('get_object',Params={'Bucket':environ.get('AWS_BUCKET_NAME'),'Key':establecimiento.get("fotoLogo")},#ExpiresIn=50
+            )
+          
+          if establecimiento.get('fotoLocal1'):  
+            establecimiento['fotoLocal1']=S3.generate_presigned_url('get_object',Params={'Bucket':environ.get('AWS_BUCKET_NAME'),'Key':establecimiento.get("fotoLocal1")},#ExpiresIn=50
+            )
+          
+          if establecimiento.get('fotoLocal2'):  
+            establecimiento['fotoLocal2']=S3.generate_presigned_url('get_object',Params={'Bucket':environ.get('AWS_BUCKET_NAME'),'Key':establecimiento.get("fotoLocal2")},#ExpiresIn=50
+            )
+          
+          if establecimiento.get('fotoLocal3'):  
+            establecimiento['fotoLocal3']=S3.generate_presigned_url('get_object',Params={'Bucket':environ.get('AWS_BUCKET_NAME'),'Key':establecimiento.get("fotoLocal3")},#ExpiresIn=50
+            )
+          
+          if establecimiento.get('fotoLocal4'):  
+            establecimiento['fotoLocal4']=S3.generate_presigned_url('get_object',Params={'Bucket':environ.get('AWS_BUCKET_NAME'),'Key':establecimiento.get("fotoLocal4")},#ExpiresIn=50
+            )
 
-       for establecimiento in establecimientos:
-        if establecimiento.get('fotoLogo'):  
-          establecimiento['fotoLogo']=S3.generate_presigned_url('get_object',Params={'Bucket':environ.get('AWS_BUCKET_NAME'),'Key':establecimiento.get("fotoLogo")},#ExpiresIn=50
-          )
-        
-        if establecimiento.get('fotoLocal1'):  
-          establecimiento['fotoLocal1']=S3.generate_presigned_url('get_object',Params={'Bucket':environ.get('AWS_BUCKET_NAME'),'Key':establecimiento.get("fotoLocal1")},#ExpiresIn=50
-          )
-        
-        if establecimiento.get('fotoLocal2'):  
-          establecimiento['fotoLocal2']=S3.generate_presigned_url('get_object',Params={'Bucket':environ.get('AWS_BUCKET_NAME'),'Key':establecimiento.get("fotoLocal2")},#ExpiresIn=50
-          )
-        
-        if establecimiento.get('fotoLocal3'):  
-          establecimiento['fotoLocal3']=S3.generate_presigned_url('get_object',Params={'Bucket':environ.get('AWS_BUCKET_NAME'),'Key':establecimiento.get("fotoLocal3")},#ExpiresIn=50
-          )
-        
-        if establecimiento.get('fotoLocal4'):  
-          establecimiento['fotoLocal4']=S3.generate_presigned_url('get_object',Params={'Bucket':environ.get('AWS_BUCKET_NAME'),'Key':establecimiento.get("fotoLocal4")},#ExpiresIn=50
-          )
+        return {
+            'content': establecimientos
+        }
 
-        
-        # if persona.get('portada'):  
-        #   persona['portada']=S3.generate_presigned_url('get_object',Params={'Bucket':environ.get('AWS_BUCKET_NAME'),'Key':persona.get("portada")},ExpiresIn=50)
-
-       return {
-          'content': establecimientos
-       }
-
+       except Exception as e:
+           return {
+              'message':'Error al listar establecimientos',
+              'content':e.args
+           },400

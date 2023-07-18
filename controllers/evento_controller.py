@@ -15,18 +15,23 @@ class EventosController(Resource):
   #para listar los eventos en la pagina principal, luego de iniciar sesion
     @jwt_required()
     def get(self):
-       
-       resultado = conexion.session.query(EventoModel).all()
-       S3= AWSSession.client('s3') 
-       dto = EventoResponseDto(many=True)
-       eventos = dto.dump(resultado)
+      try: 
+        resultado = conexion.session.query(EventoModel).all()
+        S3= AWSSession.client('s3') 
+        dto = EventoResponseDto(many=True)
+        eventos = dto.dump(resultado)
 
-       for evento in eventos:
-        if evento.get('fotoEvento'):  
-          evento['fotoEvento']=S3.generate_presigned_url('get_object',Params={'Bucket':environ.get('AWS_BUCKET_NAME'),'Key':evento.get("fotoEvento")},#ExpiresIn=50
-          )
+        for evento in eventos:
+          if evento.get('fotoEvento'):  
+            evento['fotoEvento']=S3.generate_presigned_url('get_object',Params={'Bucket':environ.get('AWS_BUCKET_NAME'),'Key':evento.get("fotoEvento")},#ExpiresIn=50
+            )
 
-       return {
-          'content': eventos
-       }
-   
+        return {
+            'content': eventos
+        }
+     
+      except Exception as e:
+           return {
+              'message':'Error al listar eventos',
+              'content':e.args
+           },400
