@@ -20,3 +20,8 @@ class UsuarioResponseDto(SQLAlchemyAutoSchema):
 class IniciarSesionRequestDto(Schema):
     correo = fields.Email(required = True)
     password = fields.String(required=True)
+
+#(put)
+class PerfilRequestDto(Schema):
+    nombre = fields.String()
+    apellido = fields.String()
