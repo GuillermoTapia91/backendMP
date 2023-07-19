@@ -17,7 +17,6 @@ class RegistroController(Resource):
 
           hash= hashpw(password,salt)
           hashString = hash.decode('utf-8')
-          print(hashString)
 
           dataValidada['password'] = hashString
 
@@ -45,7 +44,6 @@ class LoginController(Resource):
          
         dataValidada = dto.load(data)
         usuarioEncontrado = conexion.session.query(UsuarioModel).filter_by(correo = dataValidada.get('correo')).first()
-        print(usuarioEncontrado)
 
         if usuarioEncontrado is None:
            raise Exception('Usuario con correo {} no existe'.format(dataValidada.get('correo')))
