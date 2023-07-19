@@ -6,7 +6,7 @@ from models.usuario_model import UsuarioModel
 from models.establecimiento_model import EstablecimientoModel
 from models.evento_model import EventoModel
 from flask_jwt_extended import JWTManager
-from controllers.usuario_controller import RegistroController,LoginController,PerfilController
+from controllers.usuario_controller import RegistroController,LoginController,PerfilController, UsuarioController
 from controllers.establecimiento_controller import EstablecimientosController
 from controllers.establecimientosUsuarios_controller import EstablecimientosUsuariosController
 from controllers.evento_controller import EventosController
@@ -37,6 +37,7 @@ Migrate(app,conexion)
 api.add_resource(RegistroController,'/registro-usuario')
 api.add_resource(LoginController,'/iniciar-sesion')
 api.add_resource(PerfilController,'/perfil')
+api.add_resource(UsuarioController,'/perfil/<int:id>')
 
 
   #Establecimientos

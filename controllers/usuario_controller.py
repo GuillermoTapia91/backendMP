@@ -1,7 +1,7 @@
 from flask_restful import Resource, request
 from models.usuario_model import UsuarioModel
 from config import conexion
-from dtos.usuario_dto import RegistroUsuarioRequestDto,IniciarSesionRequestDto,UsuarioResponseDto
+from dtos.usuario_dto import RegistroUsuarioRequestDto,IniciarSesionRequestDto,UsuarioResponseDto, PerfilRequestDto
 from bcrypt import gensalt, hashpw, checkpw
 from flask_jwt_extended import create_access_token,jwt_required,get_jwt_identity
 
@@ -69,15 +69,68 @@ class LoginController(Resource):
           'message': 'Error al iniciar Sesion',
           'content': e.args
         },400
-
+      
+   @jwt_required()  
+   def get(self):
+      resultado= conexion.session.query(UsuarioModel).all()
+      dto= UsuarioResponseDto(many=True)
+      data=dto.dump(resultado)
+      return{
+         "message":"Aqui esta la lista de usuarios",
+         "content":data
+      }
+   
 class PerfilController(Resource):
    @jwt_required()
    def get(self):
       identificador = get_jwt_identity()
       print(identificador)
-      usuarioEncontrado = conexion.session.query(UsuarioModel).filter_by(id=identificador).first()
+      usuarioEncontrado = conexion.session.query(UsuarioModel).all()
       dto = UsuarioResponseDto()
       resultado = dto.dump(usuarioEncontrado)
       return {
          'content': resultado
-      }  
+      }       
+class UsuarioController(Resource):
+   @jwt_required()  
+   def delete(self, id):
+      try:
+         usuarioId= get_jwt_identity()
+         usuarioEliminado=conexion.session.query(UsuarioModel).filter_by(id=id).delete()
+         if  usuarioEliminado == 0 :
+            raise Exception ("no se encontro la publicacion")
+         conexion.session.commit()
+         return{
+                  "message":"Usuario eliminado exitosamente"
+               },201
+         
+      except Exception as e:
+            return{
+                "message":"Error al eliminar al usuario",
+                "content": e.args
+            },400
+   
+   @jwt_required()
+   def put(self, id):
+      try:
+            usuarioId = get_jwt_identity()
+            usuario = conexion.session.query(UsuarioModel).filter_by(id=id).first()
+            if not usuario:
+                raise Exception("Perfil no existe")
+            dto=PerfilRequestDto()
+            dataValidada =dto.load(request.json)
+
+            conexion.session.query(UsuarioModel).filter_by(id = id).update(dataValidada)
+
+            conexion.session.commit()
+            resultado = PerfilRequestDto().dump(usuario)
+
+            return{
+                    "message" :"Publicacion actualizada exitosamente",
+                    "content" : resultado
+            }, 201
+      except Exception as e:
+            return{
+                "message":"error al intentar actualizar",
+                "content": e.args
+            }, 400
