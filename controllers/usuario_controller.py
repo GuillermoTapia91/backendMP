@@ -91,6 +91,7 @@ class PerfilController(Resource):
       return {
          'content': resultado
       }       
+   
 class UsuarioController(Resource):
    @jwt_required()  
    def delete(self, id):
@@ -98,12 +99,15 @@ class UsuarioController(Resource):
          usuarioId= get_jwt_identity()
          usuarioEliminado=conexion.session.query(UsuarioModel).filter_by(id=id).delete()
          if  usuarioEliminado == 0 :
-            raise Exception ("no se encontro la publicacion")
+            raise Exception ("no se encontro el usuario")
+         if id != usuarioId:
+            raise Exception("Tu no puedes borrar este perfil")
+
          conexion.session.commit()
          return{
                   "message":"Usuario eliminado exitosamente"
                },201
-         
+
       except Exception as e:
             return{
                 "message":"Error al eliminar al usuario",
@@ -114,9 +118,13 @@ class UsuarioController(Resource):
    def put(self, id):
       try:
             usuarioId = get_jwt_identity()
+            print(usuarioId)
             usuario = conexion.session.query(UsuarioModel).filter_by(id=id).first()
             if not usuario:
+                #condici para comprar id con usuarioID , si no son iguales 
                 raise Exception("Perfil no existe")
+            if id != usuarioId:
+                raise Exception("Tu no puedes modificar este perfil")
             dto=PerfilRequestDto()
             dataValidada =dto.load(request.json)
 

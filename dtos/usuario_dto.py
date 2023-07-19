@@ -23,5 +23,5 @@ class IniciarSesionRequestDto(Schema):
 
 #(put)
 class PerfilRequestDto(Schema):
-     class Meta:
-        model = UsuarioModel
+    nombre = fields.String()
+    apellido = fields.String()
