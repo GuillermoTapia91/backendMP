@@ -83,7 +83,7 @@ class PerfilController(Resource):
    def get(self):
       identificador = get_jwt_identity()
       print(identificador)
-      usuarioEncontrado = conexion.session.query(UsuarioModel).all()
+      usuarioEncontrado = conexion.session.query(UsuarioModel).filter_by(id=identificador).first()
       dto = UsuarioResponseDto()
       resultado = dto.dump(usuarioEncontrado)
       return {
@@ -97,9 +97,9 @@ class UsuarioController(Resource):
          usuarioId= get_jwt_identity()
          usuarioEliminado=conexion.session.query(UsuarioModel).filter_by(id=id).delete()
          if  usuarioEliminado == 0 :
-            raise Exception ("no se encontro el usuario")
+            raise Exception ("Este usuario no existe")
          if id != usuarioId:
-            raise Exception("Tu no puedes borrar este perfil")
+            raise Exception("Usted no puede eliminar un usuario diferente al suyo")
 
          conexion.session.commit()
          return{
@@ -118,11 +118,10 @@ class UsuarioController(Resource):
             usuarioId = get_jwt_identity()
             print(usuarioId)
             usuario = conexion.session.query(UsuarioModel).filter_by(id=id).first()
-            if not usuario:
-                #condici para comprar id con usuarioID , si no son iguales 
-                raise Exception("Perfil no existe")
+            if not usuario: 
+                raise Exception("Este usuario no existe")
             if id != usuarioId:
-                raise Exception("Tu no puedes modificar este perfil")
+                raise Exception("Usted no puede modificar un usuario diferente al suyo")
             dto=PerfilRequestDto()
             dataValidada =dto.load(request.json)
 
@@ -132,11 +131,11 @@ class UsuarioController(Resource):
             resultado = PerfilRequestDto().dump(usuario)
 
             return{
-                    "message" :"Publicacion actualizada exitosamente",
+                    "message" :"Usuario actualizado exitosamente",
                     "content" : resultado
             }, 201
       except Exception as e:
             return{
-                "message":"error al intentar actualizar",
+                "message":"Error al intentar actualizar el usuario",
                 "content": e.args
             }, 400
