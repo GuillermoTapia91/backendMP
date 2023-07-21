@@ -1,41 +1,54 @@
-from flask_restful import Resource, request
+from flask_restful import Resource, request, reqparse
 from models.usuario_model import UsuarioModel
 from config import conexion
 from dtos.usuario_dto import RegistroUsuarioRequestDto,IniciarSesionRequestDto,UsuarioResponseDto, PerfilRequestDto
 from bcrypt import gensalt, hashpw, checkpw
 from flask_jwt_extended import create_access_token,jwt_required,get_jwt_identity
-
+from datetime import datetime
 class RegistroController(Resource):
     def post(self):
-        data = request.json 
-        dto = RegistroUsuarioRequestDto()
+        parser = reqparse.RequestParser()
+        parser.add_argument('fecha_nacimiento', type=str, required=True, help='Fecha de nacimiento requerida (formato: yyyy-mm-dd)')
+        parser.add_argument('password', type=str, required=True, help='Contraseña requerida')
+        # Agrega otros campos requeridos a 'parser' si es necesario.
+
+        data = parser.parse_args()
+        fecha_nacimiento_str = data['fecha_nacimiento']
+        fecha_nacimiento = datetime.strptime(fecha_nacimiento_str, "%Y-%m-%d")
+
+        # Calculamos la edad mínima requerida (por ejemplo, 18 años)
+        edad_minima = 18
+        hoy = datetime.today().date()
+        edad = hoy.year - fecha_nacimiento.year - ((hoy.month, hoy.day) < (fecha_nacimiento.month, fecha_nacimiento.day))
+
+        if edad < edad_minima:
+            return {
+                'message': 'Debes tener al menos {} años para registrarte.'.format(edad_minima)
+            }, 400
+
         try:
-          dataValidada = dto.load(data)
-          password = bytes(dataValidada.get('password'),'utf-8')
+            password = bytes(data['password'], 'utf-8')
+            salt = gensalt()
+            hash = hashpw(password, salt)
+            hashString = hash.decode('utf-8')
 
-          salt =gensalt()
+            data['password'] = hashString
 
-          hash= hashpw(password,salt)
-          hashString = hash.decode('utf-8')
-          print(hashString)
+            nuevoUsuario = UsuarioModel(**data)
+            conexion.session.add(nuevoUsuario)
+            conexion.session.commit()
 
-          dataValidada['password'] = hashString
+            return {
+                'message': 'Usuario creado exitosamente'
+            }, 201
 
-          nuevoUsuario = UsuarioModel(**dataValidada)
-          conexion.session.add(nuevoUsuario)
-          conexion.session.commit()
-
-          return {
-              'message': 'Usuario creado exitosamente'
-          },201
-        
         except Exception as e:
-           conexion.session.rollback()
-           return{
-              'message' : 'Error al crear usuario',
-              'content':e.args
-           }, 400
-
+            conexion.session.rollback()
+            return {
+                'message': 'Error al crear usuario',
+                'content': e.args
+            }, 400
+   
 class LoginController(Resource):
    def post(self):
       
@@ -85,12 +98,12 @@ class PerfilController(Resource):
    def get(self):
       identificador = get_jwt_identity()
       print(identificador)
-      usuarioEncontrado = conexion.session.query(UsuarioModel).all()
+      usuarioEncontrado = conexion.session.query(UsuarioModel).filter_by(id=identificador).first()
       dto = UsuarioResponseDto()
       resultado = dto.dump(usuarioEncontrado)
       return {
          'content': resultado
-      }       
+      }     
    
 class UsuarioController(Resource):
    @jwt_required()  
@@ -121,7 +134,6 @@ class UsuarioController(Resource):
             print(usuarioId)
             usuario = conexion.session.query(UsuarioModel).filter_by(id=id).first()
             if not usuario:
-                #condici para comprar id con usuarioID , si no son iguales 
                 raise Exception("Perfil no existe")
             if id != usuarioId:
                 raise Exception("Tu no puedes modificar este perfil")
@@ -142,3 +154,5 @@ class UsuarioController(Resource):
                 "message":"error al intentar actualizar",
                 "content": e.args
             }, 400
+      
+   
