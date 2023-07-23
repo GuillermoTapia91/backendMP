@@ -1,32 +1,55 @@
-from flask_restful import Resource, request
+from flask_restful import Resource, request, reqparse
 from models.usuario_model import UsuarioModel
 from config import conexion
 from dtos.usuario_dto import RegistroUsuarioRequestDto,IniciarSesionRequestDto,UsuarioResponseDto, PerfilRequestDto
 from bcrypt import gensalt, hashpw, checkpw
 from flask_jwt_extended import create_access_token,jwt_required,get_jwt_identity
+from datetime import datetime
+from correo import enviarCorreo
 
 class RegistroController(Resource):
     def post(self):
         data = request.json 
         dto = RegistroUsuarioRequestDto()
-        try:
-          dataValidada = dto.load(data)
-          password = bytes(dataValidada.get('password'),'utf-8')
 
-          salt =gensalt()
+        try:
+            dataValidada = dto.load(data)
+            parser = reqparse.RequestParser()
+            parser.add_argument('fechaNacimiento', type=str, required=True, help='Fecha de nacimiento requerida (formato: yyyy-mm-dd)')
+
+            data = parser.parse_args()
+            fecha_nacimiento_str = data['fechaNacimiento']
+            fecha_nacimiento = datetime.strptime(fecha_nacimiento_str, "%Y-%m-%d")
+
+
+            edad_minima = 18
+            hoy = datetime.today().date()
+            edad = hoy.year - fecha_nacimiento.year - ((hoy.month, hoy.day) < (fecha_nacimiento.month, fecha_nacimiento.day))
 
           hash= hashpw(password,salt)
           hashString = hash.decode('utf-8')
 
-          dataValidada['password'] = hashString
+            if edad < edad_minima:
+               return {
+                  'message': 'Debes tener al menos {} años para registrarte.'.format(edad_minima)
+               }, 400
+            password = bytes(dataValidada.get('password'),'utf-8')
+            salt =gensalt()
 
-          nuevoUsuario = UsuarioModel(**dataValidada)
-          conexion.session.add(nuevoUsuario)
-          conexion.session.commit()
+            hash= hashpw(password,salt)
+            hashString = hash.decode('utf-8')
 
-          return {
-              'message': 'Usuario creado exitosamente'
-          },201
+            dataValidada['password'] = hashString
+            
+            nuevoUsuario = UsuarioModel(**dataValidada)
+            conexion.session.add(nuevoUsuario)
+            conexion.session.commit()
+            print(dataValidada)
+            enviarCorreo([dataValidada['correo']])
+            
+            return {
+               'message': 'Usuario creado exitosamente'
+            },201
         
         except Exception as e:
            conexion.session.rollback()
@@ -34,7 +57,7 @@ class RegistroController(Resource):
               'message' : 'Error al crear usuario',
               'content':e.args
            }, 400
-
+   
 class LoginController(Resource):
    def post(self):
       
@@ -88,7 +111,7 @@ class PerfilController(Resource):
       resultado = dto.dump(usuarioEncontrado)
       return {
          'content': resultado
-      }       
+      }     
    
 class UsuarioController(Resource):
    @jwt_required()  
@@ -118,8 +141,10 @@ class UsuarioController(Resource):
             usuarioId = get_jwt_identity()
             print(usuarioId)
             usuario = conexion.session.query(UsuarioModel).filter_by(id=id).first()
-            if not usuario: 
-                raise Exception("Este usuario no existe")
+
+            if not usuario:
+                raise Exception("Perfil no existe")
+
             if id != usuarioId:
                 raise Exception("Usted no puede modificar un usuario diferente al suyo")
             dto=PerfilRequestDto()
@@ -139,3 +164,5 @@ class UsuarioController(Resource):
                 "message":"Error al intentar actualizar el usuario",
                 "content": e.args
             }, 400
+      
+   
