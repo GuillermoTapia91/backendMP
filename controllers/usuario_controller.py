@@ -5,49 +5,54 @@ from dtos.usuario_dto import RegistroUsuarioRequestDto,IniciarSesionRequestDto,U
 from bcrypt import gensalt, hashpw, checkpw
 from flask_jwt_extended import create_access_token,jwt_required,get_jwt_identity
 from datetime import datetime
+from correo import enviarCorreo
+
 class RegistroController(Resource):
     def post(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('fecha_nacimiento', type=str, required=True, help='Fecha de nacimiento requerida (formato: yyyy-mm-dd)')
-        parser.add_argument('password', type=str, required=True, help='Contraseña requerida')
-        # Agrega otros campos requeridos a 'parser' si es necesario.
-
-        data = parser.parse_args()
-        fecha_nacimiento_str = data['fecha_nacimiento']
-        fecha_nacimiento = datetime.strptime(fecha_nacimiento_str, "%Y-%m-%d")
-
-        # Calculamos la edad mínima requerida (por ejemplo, 18 años)
-        edad_minima = 18
-        hoy = datetime.today().date()
-        edad = hoy.year - fecha_nacimiento.year - ((hoy.month, hoy.day) < (fecha_nacimiento.month, fecha_nacimiento.day))
-
-        if edad < edad_minima:
-            return {
-                'message': 'Debes tener al menos {} años para registrarte.'.format(edad_minima)
-            }, 400
+        data = request.json 
+        dto = RegistroUsuarioRequestDto()
 
         try:
-            password = bytes(data['password'], 'utf-8')
-            salt = gensalt()
-            hash = hashpw(password, salt)
+            dataValidada = dto.load(data)
+            parser = reqparse.RequestParser()
+            parser.add_argument('fechaNacimiento', type=str, required=True, help='Fecha de nacimiento requerida (formato: yyyy-mm-dd)')
+
+            data = parser.parse_args()
+            fecha_nacimiento_str = data['fechaNacimiento']
+            fecha_nacimiento = datetime.strptime(fecha_nacimiento_str, "%Y-%m-%d")
+
+            edad_minima = 18
+            hoy = datetime.today().date()
+            edad = hoy.year - fecha_nacimiento.year - ((hoy.month, hoy.day) < (fecha_nacimiento.month, fecha_nacimiento.day))
+
+            if edad < edad_minima:
+               return {
+                  'message': 'Debes tener al menos {} años para registrarte.'.format(edad_minima)
+               }, 400
+            password = bytes(dataValidada.get('password'),'utf-8')
+            salt =gensalt()
+
+            hash= hashpw(password,salt)
             hashString = hash.decode('utf-8')
 
-            data['password'] = hashString
-
-            nuevoUsuario = UsuarioModel(**data)
+            dataValidada['password'] = hashString
+            
+            nuevoUsuario = UsuarioModel(**dataValidada)
             conexion.session.add(nuevoUsuario)
             conexion.session.commit()
-
+            print(dataValidada)
+            enviarCorreo([dataValidada['correo']])
+            
             return {
-                'message': 'Usuario creado exitosamente'
-            }, 201
-
+               'message': 'Usuario creado exitosamente'
+            },201
+        
         except Exception as e:
-            conexion.session.rollback()
-            return {
-                'message': 'Error al crear usuario',
-                'content': e.args
-            }, 400
+           conexion.session.rollback()
+           return{
+              'message' : 'Error al crear usuario',
+              'content':e.args
+           }, 400
    
 class LoginController(Resource):
    def post(self):
