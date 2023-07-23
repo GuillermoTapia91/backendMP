@@ -9,10 +9,9 @@ from correo import enviarCorreo
 
 class RegistroController(Resource):
     def post(self):
-        data = request.json 
-        dto = RegistroUsuarioRequestDto()
-
-        try:
+       data = request.json 
+       dto = RegistroUsuarioRequestDto()
+       try:
             dataValidada = dto.load(data)
             parser = reqparse.RequestParser()
             parser.add_argument('fechaNacimiento', type=str, required=True, help='Fecha de nacimiento requerida (formato: yyyy-mm-dd)')
@@ -26,8 +25,8 @@ class RegistroController(Resource):
             hoy = datetime.today().date()
             edad = hoy.year - fecha_nacimiento.year - ((hoy.month, hoy.day) < (fecha_nacimiento.month, fecha_nacimiento.day))
 
-          hash= hashpw(password,salt)
-          hashString = hash.decode('utf-8')
+            hash= hashpw(password,salt)
+            hashString = hash.decode('utf-8')
 
             if edad < edad_minima:
                return {
@@ -51,7 +50,7 @@ class RegistroController(Resource):
                'message': 'Usuario creado exitosamente'
             },201
         
-        except Exception as e:
+       except Exception as e:
            conexion.session.rollback()
            return{
               'message' : 'Error al crear usuario',
@@ -163,6 +162,6 @@ class UsuarioController(Resource):
             return{
                 "message":"Error al intentar actualizar el usuario",
                 "content": e.args
-            }, 400
-      
+            }, 400          
+       
    
