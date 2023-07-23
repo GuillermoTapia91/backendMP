@@ -21,9 +21,13 @@ class RegistroController(Resource):
             fecha_nacimiento_str = data['fechaNacimiento']
             fecha_nacimiento = datetime.strptime(fecha_nacimiento_str, "%Y-%m-%d")
 
+
             edad_minima = 18
             hoy = datetime.today().date()
             edad = hoy.year - fecha_nacimiento.year - ((hoy.month, hoy.day) < (fecha_nacimiento.month, fecha_nacimiento.day))
+
+          hash= hashpw(password,salt)
+          hashString = hash.decode('utf-8')
 
             if edad < edad_minima:
                return {
@@ -63,7 +67,6 @@ class LoginController(Resource):
          
         dataValidada = dto.load(data)
         usuarioEncontrado = conexion.session.query(UsuarioModel).filter_by(correo = dataValidada.get('correo')).first()
-        print(usuarioEncontrado)
 
         if usuarioEncontrado is None:
            raise Exception('Usuario con correo {} no existe'.format(dataValidada.get('correo')))
@@ -117,9 +120,9 @@ class UsuarioController(Resource):
          usuarioId= get_jwt_identity()
          usuarioEliminado=conexion.session.query(UsuarioModel).filter_by(id=id).delete()
          if  usuarioEliminado == 0 :
-            raise Exception ("no se encontro el usuario")
+            raise Exception ("Este usuario no existe")
          if id != usuarioId:
-            raise Exception("Tu no puedes borrar este perfil")
+            raise Exception("Usted no puede eliminar un usuario diferente al suyo")
 
          conexion.session.commit()
          return{
@@ -138,10 +141,12 @@ class UsuarioController(Resource):
             usuarioId = get_jwt_identity()
             print(usuarioId)
             usuario = conexion.session.query(UsuarioModel).filter_by(id=id).first()
+
             if not usuario:
                 raise Exception("Perfil no existe")
+
             if id != usuarioId:
-                raise Exception("Tu no puedes modificar este perfil")
+                raise Exception("Usted no puede modificar un usuario diferente al suyo")
             dto=PerfilRequestDto()
             dataValidada =dto.load(request.json)
 
@@ -151,12 +156,12 @@ class UsuarioController(Resource):
             resultado = PerfilRequestDto().dump(usuario)
 
             return{
-                    "message" :"Publicacion actualizada exitosamente",
+                    "message" :"Usuario actualizado exitosamente",
                     "content" : resultado
             }, 201
       except Exception as e:
             return{
-                "message":"error al intentar actualizar",
+                "message":"Error al intentar actualizar el usuario",
                 "content": e.args
             }, 400
       

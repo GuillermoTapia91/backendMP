@@ -9,17 +9,17 @@ from uuid import uuid4
 from boto3 import Session
 
 AWSSession = Session(aws_access_key_id=environ.get('AWS_ACCESS_KEY'),aws_secret_access_key=environ.get('AWS_SECRET_KEY'),region_name=environ.get('AWS_BUCKET_REGION'))
-class EstablecimientosController(Resource):
+class EstablecimientosGeneralesController(Resource):
   
-  #para listar los establecimentos en la pagina principal, luego de iniciar sesion
-    @jwt_required()
+  #para listar los establecimentos en la pagina principal, sin iniciar sesion
+    
     def get(self):
-       try: 
+      try:
         resultado = conexion.session.query(EstablecimientoModel).all()
         S3= AWSSession.client('s3') 
         dto = EstablecimientoResponseDto(many=True)
         establecimientos = dto.dump(resultado)
-
+        
         for establecimiento in establecimientos:
           if establecimiento.get('fotoLogo'):  
             establecimiento['fotoLogo']=S3.generate_presigned_url('get_object',Params={'Bucket':environ.get('AWS_BUCKET_NAME'),'Key':establecimiento.get("fotoLogo")},#ExpiresIn=50
@@ -40,13 +40,12 @@ class EstablecimientosController(Resource):
           if establecimiento.get('fotoLocal4'):  
             establecimiento['fotoLocal4']=S3.generate_presigned_url('get_object',Params={'Bucket':environ.get('AWS_BUCKET_NAME'),'Key':establecimiento.get("fotoLocal4")},#ExpiresIn=50
             )
+      
+        return establecimientos
 
-        return {
-            'content': establecimientos
-        }
-
-       except Exception as e:
-           return {
+      except Exception as e: 
+                  return {
               'message':'Error al listar establecimientos',
               'content':e.args
            },400
+
