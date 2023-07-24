@@ -12,7 +12,7 @@ AWSSession = Session(aws_access_key_id=environ.get('AWS_ACCESS_KEY'),aws_secret_
 
 class EstablecimientosUsuariosController(Resource):
   #Para crear un establecimiento, el usuario debe haber iniciado sesion  
-    @jwt_required()
+    # @jwt_required()
     def post(self):
         data = request.form #request.json
         fotoLogo = request.files.get('fotoLogo')
@@ -20,7 +20,7 @@ class EstablecimientosUsuariosController(Resource):
         fotoLocal2 = request.files.get('fotoLocal2')
         fotoLocal3 = request.files.get('fotoLocal3')
         fotoLocal4 = request.files.get('fotoLocal4')
-        usuarioId = get_jwt_identity()
+        # usuarioId = get_jwt_identity()
         directorioActual = getcwd() 
         S3 = AWSSession.client('s3')
         dto = EstablecimientoRequestDto()
@@ -73,7 +73,7 @@ class EstablecimientosUsuariosController(Resource):
               S3.upload_file(ruta,environ.get('AWS_BUCKET_NAME'), nombreFotoLocal4)
               remove(ruta)
 
-          nuevoEstablecimiento = EstablecimientoModel(**dataValidada,fotoLogo=nombreFotoLogo,fotoLocal1=nombreFotoLocal1,fotoLocal2=nombreFotoLocal2, fotoLocal3=nombreFotoLocal3,fotoLocal4=nombreFotoLocal4,usuarioId=usuarioId)
+          nuevoEstablecimiento = EstablecimientoModel(**dataValidada,fotoLogo=nombreFotoLogo,fotoLocal1=nombreFotoLocal1,fotoLocal2=nombreFotoLocal2, fotoLocal3=nombreFotoLocal3,fotoLocal4=nombreFotoLocal4,usuarioId=9)
 
           conexion.session.add(nuevoEstablecimiento)
           conexion.session.commit()
