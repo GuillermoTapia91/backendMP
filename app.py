@@ -68,17 +68,17 @@ api.add_resource(UsuarioController,'/perfil/<int:id>')
 api.add_resource(UsuariosController,'/usuarios')
 
   #Establecimientos
-  #Establecimientos Vista Principal(usuario registrado) 
+  #Establecimientos Vista Principal(usuario registrado) get con token todos los establecimientos
 api.add_resource(EstablecimientosController,'/establecimientos')
-  #Establecimientos Vista Mi información(empresario)
+  #Establecimientos Vista Mi información(empresario) post-get con token sus establecimientos
 api.add_resource(EstablecimientosUsuariosController,'/establecimientos-miInformacion')
-  #Establecimiento Vista mi Información(empresario)
+  #Establecimiento Vista mi Información(empresario) put-delete con token sus establecimientos
 api.add_resource(EstablecimientoUsuariosController,'/establecimiento-miInformacion/<int:id>') 
-   #Establecimientos Vista Principal(usuario no registrado)  
+   #Establecimientos Vista Principal(usuario no registrado) get sin token todos los establecimientos 
 api.add_resource(EstablecimientosGeneralesController,'/establecimientos-generales')
   
   # Eventos 
-  #Eventos Vista Principal(empresario)
+  #Eventos Vista Principal(usuario registrado)
 api.add_resource(EventosController,'/eventos')
   #Eventos Vista Mi información(empresario)
 api.add_resource(EventosUsuariosController,'/eventos-miInformacion')
