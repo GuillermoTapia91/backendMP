@@ -151,7 +151,7 @@ class UsuarioController(Resource):
             resultado = PerfilRequestDto().dump(usuario)
 
             return{
-                    "message" :"Publicacion actualizada exitosamente",
+                    "message" :"usuario actualizada exitosamente",
                     "content" : resultado
             }, 201
       except Exception as e:
