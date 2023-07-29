@@ -27,6 +27,6 @@ class EstablecimientoModel(conexion.Model):
     fotoLocal3 = Column(type_=types.Text, name= 'foto_local_3')#verificar
     fotoLocal4 = Column(type_=types.Text, name= 'foto_local_4')#verificar
     paginaWeb = Column(type_=types.Text, name='pagina_web')
-    usuarioId = Column(ForeignKey(column='usuarios.id'),type_=types.Integer, nullable=False, name='usuario_id')
+    usuarioId = Column(ForeignKey(column='usuarios.id', ondelete='CASCADE',onupdate='CASCADE'),type_=types.Integer, nullable=False, name='usuario_id')
 
     __tablename__ = "establecimientos"
