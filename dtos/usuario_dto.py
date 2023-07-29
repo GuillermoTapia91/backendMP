@@ -12,7 +12,6 @@ class RegistroUsuarioRequestDto(SQLAlchemyAutoSchema):
 class UsuarioResponseDto(SQLAlchemyAutoSchema):
     tipoUsuario = EnumField(enum=TipoUsuario, by_value=True)
     password = auto_field(load_only=True)
-    id = auto_field(load_only= True)
     class Meta:
         model = UsuarioModel
 

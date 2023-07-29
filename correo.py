@@ -12,11 +12,9 @@ load_dotenv()
 def enviarCorreo(destinatarios):
     mensaje = MIMEMultipart()
 
-    mensaje['Subject'] = 'Olvidaste la password'
+    mensaje['Subject'] = 'Registro Movida Peruana'
 
     mensaje['From'] = environ.get('EMAIL_EMISOR')
-
-    body = 'Hola, buenos dias. Al paracer has olvidado tu contrasena, te sugerimos que la cambies en el siguiente link'
 
     html = '''
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -147,8 +145,6 @@ a[x-apple-data-detectors] {
  </body>
 </html>
     '''
-
-    texto = MIMEText(body, 'plain')
     textoEnriquecido = MIMEText(html, 'html')
 
     mensaje.attach(textoEnriquecido)
@@ -164,4 +160,3 @@ a[x-apple-data-detectors] {
 
     conexion.quit()
 
-    print('Email enviado exitosamente')

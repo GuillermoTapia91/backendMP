@@ -88,16 +88,15 @@ class LoginController(Resource):
           'content': e.args
         },400
       
-   @jwt_required()  
+class UsuariosController(Resource):
    def get(self):
       resultado= conexion.session.query(UsuarioModel).all()
       dto= UsuarioResponseDto(many=True)
       data=dto.dump(resultado)
       return{
-         "message":"Aqui esta la lista de usuarios",
+         "message":"Lista de usuarios",
          "content":data
       }
-   
 class PerfilController(Resource):
    @jwt_required()
    def get(self):
@@ -117,9 +116,9 @@ class UsuarioController(Resource):
          usuarioId= get_jwt_identity()
          usuarioEliminado=conexion.session.query(UsuarioModel).filter_by(id=id).delete()
          if  usuarioEliminado == 0 :
-            raise Exception ("no se encontro el usuario")
+            raise Exception ("No se encontro el usuario")
          if id != usuarioId:
-            raise Exception("Tu no puedes borrar este perfil")
+            raise Exception("Tú no puedes borrar este usuario")
 
          conexion.session.commit()
          return{
@@ -139,9 +138,9 @@ class UsuarioController(Resource):
             print(usuarioId)
             usuario = conexion.session.query(UsuarioModel).filter_by(id=id).first()
             if not usuario:
-                raise Exception("Perfil no existe")
+                raise Exception("Este usuario no existe")
             if id != usuarioId:
-                raise Exception("Tu no puedes modificar este perfil")
+                raise Exception("Tú no puedes modificar este usuario")
             dto=PerfilRequestDto()
             dataValidada =dto.load(request.json)
 
@@ -151,7 +150,7 @@ class UsuarioController(Resource):
             resultado = PerfilRequestDto().dump(usuario)
 
             return{
-                    "message" :"usuario actualizada exitosamente",
+                    "message" :"Usuario actualizado exitosamente",
                     "content" : resultado
             }, 201
       except Exception as e:

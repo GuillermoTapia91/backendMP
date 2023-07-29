@@ -6,7 +6,7 @@ from models.usuario_model import UsuarioModel
 from models.establecimiento_model import EstablecimientoModel
 from models.evento_model import EventoModel
 from flask_jwt_extended import JWTManager
-from controllers.usuario_controller import RegistroController,LoginController,PerfilController, UsuarioController
+from controllers.usuario_controller import RegistroController,LoginController,PerfilController, UsuarioController,UsuariosController
 from controllers.establecimiento_controller import EstablecimientosController
 from controllers.establecimientosUsuarios_controller import EstablecimientosUsuariosController,EstablecimientoUsuariosController
 from controllers.establecimientosGenerales_controller import EstablecimientosGeneralesController
@@ -65,6 +65,7 @@ api.add_resource(RegistroController,'/registro-usuario')
 api.add_resource(LoginController,'/iniciar-sesion')
 api.add_resource(PerfilController,'/perfil')
 api.add_resource(UsuarioController,'/perfil/<int:id>')
+api.add_resource(UsuariosController,'/usuarios')
 
   #Establecimientos
   #Establecimientos Vista Principal(usuario registrado) 
