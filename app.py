@@ -5,6 +5,7 @@ from config import conexion
 from models.usuario_model import UsuarioModel
 from models.establecimiento_model import EstablecimientoModel
 from models.evento_model import EventoModel
+from models.eventoE_model import EventoEModel
 from flask_jwt_extended import JWTManager
 from controllers.usuario_controller import RegistroController,LoginController,PerfilController, UsuarioController,UsuariosController
 from controllers.establecimiento_controller import EstablecimientosController
@@ -13,11 +14,12 @@ from controllers.establecimientosGenerales_controller import EstablecimientosGen
 from controllers.evento_controller import EventosController
 from controllers.eventosUsuarios_controller import EventosUsuariosController,EventoUsuariosController
 from controllers.eventosGenerales_controller import EventosGeneralesController
+from controllers.eventosEUsuarios_controller import EventosEUsuariosController
 from datetime import timedelta
 from flask_cors import CORS
 from os import environ
 from dotenv import load_dotenv
-from flask_cors import CORS
+
 
 load_dotenv()
 
@@ -86,6 +88,10 @@ api.add_resource(EventosUsuariosController,'/eventos-miInformacion')
 api.add_resource(EventoUsuariosController,'/evento-miInformacion/<int:id>')
    #Eventos Vista Principal(usuario no registrado)  
 api.add_resource(EventosGeneralesController,'/eventos-generales')
+
+  # EventosE 
+api.add_resource(EventosEUsuariosController,'/eventosE-miInformacion')
+
 
 if __name__ == ('__main__'):
     app.run(debug=True)
