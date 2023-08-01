@@ -73,7 +73,7 @@ class EstablecimientosUsuariosController(Resource):
               S3.upload_file(ruta,environ.get('AWS_BUCKET_NAME'), nombreFotoLocal4)
               remove(ruta)
 
-          nuevoEstablecimiento = EstablecimientoModel(**dataValidada,fotoLogo=nombreFotoLogo,fotoLocal1=nombreFotoLocal1,fotoLocal2=nombreFotoLocal2, fotoLocal3=nombreFotoLocal3,fotoLocal4=nombreFotoLocal4,usuarioId=9)
+          nuevoEstablecimiento = EstablecimientoModel(**dataValidada,fotoLogo=nombreFotoLogo,fotoLocal1=nombreFotoLocal1,fotoLocal2=nombreFotoLocal2, fotoLocal3=nombreFotoLocal3,fotoLocal4=nombreFotoLocal4,usuarioId=21)
 
           conexion.session.add(nuevoEstablecimiento)
           conexion.session.commit()
