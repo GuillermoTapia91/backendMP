@@ -1,6 +1,7 @@
 from flask_restful import Resource,request
 from config import conexion
 from models.establecimiento_model import EstablecimientoModel
+from models.usuario_model import UsuarioModel, TipoUsuario
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from dtos.establecimiento_dto import EstablecimientoRequestDto,EstablecimientoResponseDto
 from os import path, getcwd,environ, remove
@@ -14,13 +15,21 @@ class EstablecimientosUsuariosController(Resource):
   #Para crear un establecimiento, el usuario debe haber iniciado sesion  
     @jwt_required()
     def post(self):
-        data = request.form #request.json
+        
+        usuarioId = get_jwt_identity()
+        users = UsuarioModel.query.filter_by(id=usuarioId).first()
+        if not users or users.tipoUsuario != TipoUsuario.ADMINISTRADOR:
+          return {
+                  'message': 'Solo los administradores pueden crear establecimientos en los establecimientos.'
+              }, 403
+
+        data = request.form 
         fotoLogo = request.files.get('fotoLogo')
         fotoLocal1 = request.files.get('fotoLocal1')
         fotoLocal2 = request.files.get('fotoLocal2')
         fotoLocal3 = request.files.get('fotoLocal3')
         fotoLocal4 = request.files.get('fotoLocal4')
-        usuarioId = get_jwt_identity()
+        
         directorioActual = getcwd() 
         S3 = AWSSession.client('s3')
         dto = EstablecimientoRequestDto()
