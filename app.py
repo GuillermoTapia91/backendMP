@@ -22,8 +22,9 @@ from flask_cors import CORS
 load_dotenv()
 
 app= Flask(__name__)
-CORS(app)
+
 api = Api(app)
+CORS(app)
 app.config['JWT_SECRET_KEY']=environ.get('SECRET_KEY')
 app.config['JWT_ACCESS_TOKEN_EXPIRES']= timedelta(weeks=20)
 

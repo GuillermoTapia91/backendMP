@@ -12,7 +12,7 @@ AWSSession = Session(aws_access_key_id=environ.get('AWS_ACCESS_KEY'),aws_secret_
 
 class EstablecimientosUsuariosController(Resource):
   #Para crear un establecimiento, el usuario debe haber iniciado sesion  
-    # @jwt_required()
+    @jwt_required()
     def post(self):
         data = request.form #request.json
         fotoLogo = request.files.get('fotoLogo')
@@ -20,7 +20,7 @@ class EstablecimientosUsuariosController(Resource):
         fotoLocal2 = request.files.get('fotoLocal2')
         fotoLocal3 = request.files.get('fotoLocal3')
         fotoLocal4 = request.files.get('fotoLocal4')
-        # usuarioId = get_jwt_identity()
+        usuarioId = get_jwt_identity()
         directorioActual = getcwd() 
         S3 = AWSSession.client('s3')
         dto = EstablecimientoRequestDto()
@@ -73,7 +73,7 @@ class EstablecimientosUsuariosController(Resource):
               S3.upload_file(ruta,environ.get('AWS_BUCKET_NAME'), nombreFotoLocal4)
               remove(ruta)
 
-          nuevoEstablecimiento = EstablecimientoModel(**dataValidada,fotoLogo=nombreFotoLogo,fotoLocal1=nombreFotoLocal1,fotoLocal2=nombreFotoLocal2, fotoLocal3=nombreFotoLocal3,fotoLocal4=nombreFotoLocal4,usuarioId=21)
+          nuevoEstablecimiento = EstablecimientoModel(**dataValidada,fotoLogo=nombreFotoLogo,fotoLocal1=nombreFotoLocal1,fotoLocal2=nombreFotoLocal2, fotoLocal3=nombreFotoLocal3,fotoLocal4=nombreFotoLocal4,usuarioId=usuarioId)
 
           conexion.session.add(nuevoEstablecimiento)
           conexion.session.commit()
@@ -143,22 +143,22 @@ class EstablecimientosUsuariosController(Resource):
            },400   
 
 class EstablecimientoUsuariosController(Resource):
-    @jwt_required()
+    # @jwt_required()
     # /establecimiento-miInformacion/<int:id>
     def put(self, id):
-      data = request.form #request.json
-      fotoLogo = request.files.get('fotoLogo')
-      fotoLocal1 = request.files.get('fotoLocal1')
-      fotoLocal2 = request.files.get('fotoLocal2')
-      fotoLocal3 = request.files.get('fotoLocal3')
-      fotoLocal4 = request.files.get('fotoLocal4')
-      usuarioId = get_jwt_identity()
-      dto = EstablecimientoRequestDto()
-      dataValidada = dto.load(data)
-      directorioActual = getcwd()
+      
       try: 
-        
-        establecimientoEncontrado = conexion.session.query(EstablecimientoModel).filter_by(id=id,usuarioId=usuarioId).first()
+        data = request.form #request.json
+        fotoLogo = request.files.get('fotoLogo')
+        fotoLocal1 = request.files.get('fotoLocal1')
+        fotoLocal2 = request.files.get('fotoLocal2')
+        fotoLocal3 = request.files.get('fotoLocal3')
+        fotoLocal4 = request.files.get('fotoLocal4')
+        # usuarioId = get_jwt_identity()
+        dto = EstablecimientoRequestDto()
+        dataValidada = dto.load(data)
+        directorioActual = getcwd()
+        establecimientoEncontrado = conexion.session.query(EstablecimientoModel).filter_by(id=id,usuarioId=22).first()
         
         if not establecimientoEncontrado:
            raise Exception('Establecimiento no existe')
@@ -231,7 +231,7 @@ class EstablecimientoUsuariosController(Resource):
         dataValidada['fotoLocal3']= nombreFotoLocal3
         dataValidada['fotoLocal4']= nombreFotoLocal4
 
-        conexion.session.query(EstablecimientoModel).filter_by(id=id,usuarioId=usuarioId).update(dataValidada)      
+        conexion.session.query(EstablecimientoModel).filter_by(id=id,usuarioId=22).update(dataValidada)      
         
         conexion.session.commit()
         
@@ -240,16 +240,17 @@ class EstablecimientoUsuariosController(Resource):
           
         },201
       except Exception as e:
+         print(e)
          return {
             'message': 'Error al actualizar el establecimiento',
             'content': e.args
          }, 400  
 
-    @jwt_required()
+    # @jwt_required()
     def delete(self,id):
         try:
-          usuarioId= get_jwt_identity()
-          establecimientoEncontrado = conexion.session.query(EstablecimientoModel).filter_by(id=id,usuarioId=usuarioId).first()
+          # usuarioId= get_jwt_identity()
+          establecimientoEncontrado = conexion.session.query(EstablecimientoModel).filter_by(id=id,usuarioId=21).first()
           if not establecimientoEncontrado:
             return {
                 'message': 'Este establecimiento no existe'
@@ -271,7 +272,7 @@ class EstablecimientoUsuariosController(Resource):
           if establecimientoEncontrado.fotoLocal4:
             S3.delete_object(Bucket=environ.get('AWS_BUCKET_NAME'), Key= establecimientoEncontrado.fotoLocal4)
         
-          conexion.session.query(EstablecimientoModel).filter_by(id=id,usuarioId=usuarioId).delete()
+          conexion.session.query(EstablecimientoModel).filter_by(id=id,usuarioId=21).delete()
  
           conexion.session.commit()
 
