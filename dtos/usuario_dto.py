@@ -24,3 +24,4 @@ class IniciarSesionRequestDto(Schema):
 class PerfilRequestDto(Schema):
     nombre = fields.String()
     apellido = fields.String()
+    correo =fields.String()
