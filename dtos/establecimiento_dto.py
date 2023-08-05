@@ -6,8 +6,24 @@ from marshmallow_enum import EnumField
 #Para listar establecimientos(get)
 class EstablecimientoResponseDto(SQLAlchemyAutoSchema):
     tipoEstablecimiento = EnumField(enum=TipoEstablecimiento,by_value=True)
-    class Meta:
-        model = EstablecimientoModel
+    id=fields.Integer()
+    nombre = fields.Str()
+    distrito = fields.Str()
+    direccion = fields.Str()
+    horarioLunes = fields.Str()
+    horarioMartes = fields.Str()
+    horarioMiercoles = fields.Str()
+    horarioJueves = fields.Str()
+    horarioViernes = fields.Str()
+    horarioSabado = fields.Str()
+    horarioDomingo = fields.Str()
+    fotoLogo = fields.Str()
+    fotoLocal1 = fields.Str()
+    fotoLocal2 = fields.Str()
+    fotoLocal3 = fields.Str()
+    fotoLocal4 = fields.Str()
+    usuarioId=fields.Integer()
+    paginaWeb = fields.Str()
 
 #para Crear establecimiento(post)
 class EstablecimientoRequestDto(Schema):
@@ -23,3 +39,18 @@ class EstablecimientoRequestDto(Schema):
     horarioSabado = fields.Str(required=True)
     horarioDomingo = fields.Str(required=True)
     paginaWeb = fields.Str(required=True)
+
+class EstablecimientoAdminRequestDto(Schema):
+    tipoEstablecimiento = EnumField(enum=TipoEstablecimiento,by_value=True)
+    nombre = fields.Str(required=True)
+    distrito = fields.Str(required=True)
+    direccion = fields.Str(required=True)
+    horarioLunes = fields.Str(required=True)
+    horarioMartes = fields.Str(required=True)
+    horarioMiercoles = fields.Str(required=True)
+    horarioJueves = fields.Str(required=True)
+    horarioViernes = fields.Str(required=True)
+    horarioSabado = fields.Str(required=True)
+    horarioDomingo = fields.Str(required=True)
+    paginaWeb = fields.Str(required=True)
+    usuarioId = fields.Str(required=True)

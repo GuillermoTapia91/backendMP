@@ -3,7 +3,7 @@ from config import conexion
 from models.establecimiento_model import EstablecimientoModel
 from models.usuario_model import UsuarioModel, TipoUsuario
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from dtos.establecimiento_dto import EstablecimientoRequestDto,EstablecimientoResponseDto
+from dtos.establecimiento_dto import EstablecimientoRequestDto,EstablecimientoResponseDto,EstablecimientoAdminRequestDto
 from os import path, getcwd,environ, remove
 from werkzeug.utils import secure_filename
 from uuid import uuid4
@@ -32,7 +32,9 @@ class EstablecimientosUsuariosController(Resource):
         
         directorioActual = getcwd() 
         S3 = AWSSession.client('s3')
-        dto = EstablecimientoRequestDto()
+        # dto = EstablecimientoRequestDto()
+        dto = EstablecimientoAdminRequestDto()
+        
         
         try:
           dataValidada = dto.load(data)
@@ -82,7 +84,8 @@ class EstablecimientosUsuariosController(Resource):
               S3.upload_file(ruta,environ.get('AWS_BUCKET_NAME'), nombreFotoLocal4)
               remove(ruta)
 
-          nuevoEstablecimiento = EstablecimientoModel(**dataValidada,fotoLogo=nombreFotoLogo,fotoLocal1=nombreFotoLocal1,fotoLocal2=nombreFotoLocal2, fotoLocal3=nombreFotoLocal3,fotoLocal4=nombreFotoLocal4,usuarioId=usuarioId)
+          # nuevoEstablecimiento = EstablecimientoModel(**dataValidada,fotoLogo=nombreFotoLogo,fotoLocal1=nombreFotoLocal1,fotoLocal2=nombreFotoLocal2, fotoLocal3=nombreFotoLocal3,fotoLocal4=nombreFotoLocal4,usuarioId=usuarioId)
+          nuevoEstablecimiento = EstablecimientoModel(**dataValidada,fotoLogo=nombreFotoLogo,fotoLocal1=nombreFotoLocal1,fotoLocal2=nombreFotoLocal2, fotoLocal3=nombreFotoLocal3,fotoLocal4=nombreFotoLocal4)
 
           conexion.session.add(nuevoEstablecimiento)
           conexion.session.commit()
