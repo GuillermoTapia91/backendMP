@@ -106,6 +106,7 @@ class EstablecimientosUsuariosController(Resource):
     def get(self):
 
        usuarioId = get_jwt_identity() 
+       print(usuarioId)
        resultado = EstablecimientoModel.query.filter_by(usuarioId=usuarioId).all()
        try:
         S3= AWSSession.client('s3')
@@ -141,10 +142,9 @@ class EstablecimientosUsuariosController(Resource):
             establecimiento['fotoLocal4']=S3.generate_presigned_url('get_object',Params={'Bucket':environ.get('AWS_BUCKET_NAME'),'Key':establecimiento.get("fotoLocal4")},
             #ExpiresIn=50
             )
-          
-        return {
-            'content': establecimientos
-        }
+
+        return establecimientos 
+        
        except Exception as e:
          return {
               'message':'Error al listar establecimientos',
@@ -155,7 +155,7 @@ class EstablecimientoUsuariosController(Resource):
     @jwt_required()
     # /establecimiento-miInformacion/<int:id>
     def put(self, id):
-      data = request.form #request.json
+      data = request.form 
       fotoLogo = request.files.get('fotoLogo')
       fotoLocal1 = request.files.get('fotoLocal1')
       fotoLocal2 = request.files.get('fotoLocal2')
