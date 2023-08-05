@@ -11,6 +11,8 @@ from controllers.usuario_controller import RegistroController,LoginController,Pe
 from controllers.establecimiento_controller import EstablecimientosController
 from controllers.establecimientosUsuarios_controller import EstablecimientosUsuariosController,EstablecimientoUsuariosController
 from controllers.establecimientosGenerales_controller import EstablecimientosGeneralesController
+from controllers.establecimientosGeneralesAdmin_controller import EstablecimientosGeneralesAdminController
+from controllers.establecimientosAdmin_controller import EstablecimientosAdminController
 from controllers.evento_controller import EventosController
 from controllers.eventosUsuarios_controller import EventosUsuariosController,EventoUsuariosController
 from controllers.eventosGenerales_controller import EventosGeneralesController
@@ -78,6 +80,12 @@ api.add_resource(EstablecimientosUsuariosController,'/establecimientos-miInforma
 api.add_resource(EstablecimientoUsuariosController,'/establecimiento-miInformacion/<int:id>') 
    #Establecimientos Vista Principal(usuario no registrado) get sin token todos los establecimientos 
 api.add_resource(EstablecimientosGeneralesController,'/establecimientos-generales')
+
+#Establecimientos (admin registrado) get con token todos los establecimientos
+api.add_resource(EstablecimientosGeneralesAdminController,'/establecimientos-admin')
+#Establecimientos (admin registrado) put delete con token todos los establecimientos
+api.add_resource(EstablecimientosAdminController,'/establecimientos-put-del-admin/<int:id>')
+
   
   # Eventos 
   #Eventos Vista Principal(usuario registrado)
